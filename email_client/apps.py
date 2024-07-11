@@ -5,7 +5,7 @@ from django.apps import AppConfig
 def start_scheduler():
     import threading
     import time
-    from .email import check_email
+    from .email_utility import check_email
     def run_scheduler():
         schedule.every(5).seconds.do(check_email)
         while True:

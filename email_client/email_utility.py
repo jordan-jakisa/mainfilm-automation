@@ -1,3 +1,4 @@
+import email
 import imaplib
 import os
 from datetime import datetime
