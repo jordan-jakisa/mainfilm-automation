@@ -6,10 +6,14 @@ from email.header import decode_header
 from email.utils import parsedate_to_datetime, parseaddr
 
 from dotenv import load_dotenv
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 
 from . import models
 
 load_dotenv()
+
+llm = ChatOpenAI(max_tokens=None)
 
 
 def connect_email():
@@ -62,4 +66,52 @@ def check_email():
                         )
                         email_obj.save()
 
+                    if check_from_email(from_email):
+                        # send a reply email
+                        print("Email is from a contact form")
+                    else:
+                        # check briefing sufficiency
+                        print(check_briefing_sufficiency(email_body))
+
     mail.logout()
+
+
+def check_from_email(email_address):
+    if email_address == 'jordan.jakisa@gmail.com':
+        return True
+    else:
+        return False
+
+
+def check_briefing_sufficiency(email_body):
+    prompt_template = '''
+        Check if the following email briefing is  sufficient
+        Email body: {email_body}
+        
+        This is the criteria for a sufficient briefing:
+        type of job
+        budget for job
+        
+        Respond with true for a sufficient briefing and response with false for an insufficient briefing along with the 
+        questions responsible for collecting the missing information.
+        All your responses should be in json format
+    '''
+    chain = ChatPromptTemplate.from_template(prompt_template) | llm
+    # response = chain.invoke({'email_body': email_body})
+    # print(response)
+    return True
+
+
+def send_email(email_body):
+    prompt_template = '''
+        Generate a reply email to the following information provided in the email.
+        
+        Email: {email_body}
+        
+        Your reply should contain the following:
+        A, B, C, D        
+    '''
+    chain = ChatPromptTemplate.from_template(prompt_template) | llm
+    # response = chain.invoke({'email_body': email_body})
+    # print(response)
+    print("Sending email")
